@@ -1,6 +1,7 @@
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -22,12 +23,14 @@ namespace ServiceBus.Processor.Function
         private readonly EnvironmentVariables _config = config;
         private readonly ServiceBusReceiver _receiver = azClientFactory.CreateClient(config.ServiceBusTopicSubscription);
         private readonly HttpClient httpClient = httpClientFactory.CreateClient();
-        //private readonly HttpClient httpClient = new();
 
         [FunctionName("Processor")]
-        public async Task RunAsync([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer)
+        public async Task RunAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer, ILogger log)
         {
-            var messages = await _receiver.ReceiveMessagesAsync(20);
+            var messages = await _receiver.ReceiveMessagesAsync(
+                    maxMessages: _config.MaxMessagesToProcessPerRun,
+                    maxWaitTime: TimeSpan.FromMilliseconds(_config.MaxWaitTimeForMessagesInMilliSeconds))
+                    .ConfigureAwait(false);
             foreach (var message in messages)
             {
                 try
@@ -54,7 +57,8 @@ namespace ServiceBus.Processor.Function
                 }
                 catch (Exception ex)
                 {
-
+                    log.LogError($"ExceptionMessage: {ex.Message} | InnerException: {ex.InnerException} | StackTrace: {ex.StackTrace}");
+                    throw;
                 }
             }
         }
