@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ServiceBus.Processor.Function": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7054",
+      "launchBrowser": false
+    }
+  }
+}
