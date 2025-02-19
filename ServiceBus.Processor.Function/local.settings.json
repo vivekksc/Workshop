@@ -1,0 +1,25 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_INPROC_NET8_ENABLED": "1",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+    //"ServiceBus_Namespace__fullyQualifiedNamespace": "wv-sb1.servicebus.windows.net",
+    //"ServiceBus__Topic": "sct-wv-events",
+    //"ServiceBus__TopicSubscription": "sbts-events",
+    //"ServiceBus__ConnectionString": "Endpoint=sb://wv-sb1.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SQR6QFS/ultipq7hY0WjA+A5wkwNGJtXd+ASbIh55QU="
+  },
+  "ServiceBus": {
+    "Namespace__fullyQualifiedNamespace": "wv-sb1.servicebus.windows.net",
+    "Name": "wv-sb1",
+    "Topic": "sct-wv-events",
+    "TopicSubscription": "sbts-events",
+    "ConnectionString": "Endpoint=sb://wv-sb1.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SQR6QFS/ultipq7hY0WjA+A5wkwNGJtXd+ASbIh55QU=",
+    "UseManagedIdentity": false
+  },
+  "Databricks": {
+    "Instance": "adb-3972221035262106.6.azuredatabricks.net",
+    "AccessToken": "dapibb67ea0934b052c04c78f3fce9298bc5-3",
+    "WorkflowJobId_Ingest": "436900338996820"
+  }
+}
