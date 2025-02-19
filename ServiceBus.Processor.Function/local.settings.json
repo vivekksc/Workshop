@@ -1,0 +1,21 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_INPROC_NET8_ENABLED": "1",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+  },
+  "ServiceBus": {
+    "Namespace__fullyQualifiedNamespace": "<>.servicebus.windows.net",
+    "Name": "",
+    "Topic": "",
+    "TopicSubscription": "",
+    "ConnectionString": "",
+    "UseManagedIdentity": false
+  },
+  "Databricks": {
+    "Instance": "",
+    "AccessToken": "",
+    "WorkflowJobId_Ingest": ""
+  }
+}
