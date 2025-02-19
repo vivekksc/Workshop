@@ -3,7 +3,10 @@
   "Values": {
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
     "FUNCTIONS_INPROC_NET8_ENABLED": "1",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet"
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+    "ProcessorRunScheduleExpression": "*/5 * * * * *",
+    "MaxMessagesToProcessPerRun": 30,
+    "MaxWaitTimeForMessagesInMilliSeconds": 1000
   },
   "ServiceBus": {
     "Namespace__fullyQualifiedNamespace": "<>.servicebus.windows.net",
