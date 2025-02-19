@@ -1,6 +1,7 @@
-﻿using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using Utilities.Utils;
 
 [assembly: FunctionsStartup(typeof(ServiceBus.Processor.Function.Startup))]
@@ -28,7 +29,9 @@ namespace ServiceBus.Processor.Function
                     ServiceBusTopicSubscription = config["ServiceBus:TopicSubscription"],
                     DatabricksInstance = config["Databricks:Instance"],
                     DatabricksAccessToken = config["Databricks:AccessToken"],
-                    DatabricksWorkflowJobId_Ingest = config["Databricks:WorkflowJobId_Ingest"]
+                    DatabricksWorkflowJobId_Ingest = config["Databricks:WorkflowJobId_Ingest"],
+                    MaxMessagesToProcessPerRun = Convert.ToInt16(config["MaxMessagesToProcessPerRun"]),
+                    MaxWaitTimeForMessagesInMilliSeconds = Convert.ToInt16(config["MaxWaitTimeForMessagesInMilliSeconds"])
                 };
             });
 
