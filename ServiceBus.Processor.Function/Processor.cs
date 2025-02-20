@@ -1,6 +1,7 @@
 using Azure.Messaging.ServiceBus;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -22,24 +23,30 @@ namespace ServiceBus.Processor.Function
         private readonly EnvironmentVariables _config = config;
         private readonly ServiceBusReceiver _receiver = azClientFactory.CreateClient(config.ServiceBusTopicSubscription);
         private readonly HttpClient httpClient = httpClientFactory.CreateClient();
-        //private readonly HttpClient httpClient = new();
 
         [FunctionName("Processor")]
-        public async Task RunAsync([TimerTrigger("*/5 * * * * *")] TimerInfo myTimer)
+        public async Task RunAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer, ILogger log)
         {
-            var messages = await _receiver.ReceiveMessagesAsync(20);
+            var messages = await _receiver.ReceiveMessagesAsync(
+                    maxMessages: _config.MaxMessagesToProcessPerRun,
+                    maxWaitTime: TimeSpan.FromMilliseconds(_config.MaxWaitTimeForMessagesInMilliSeconds))
+                    .ConfigureAwait(false);
             foreach (var message in messages)
             {
+                // Process the message
+                string eventPayload = Encoding.UTF8.GetString(message.Body.ToArray());
+                string eventEntity = message.Subject;
+                string eventId = message.SessionId;
+                string logDetail = $"Entity: {eventEntity}, EntityId: {eventId}";
+
                 try
                 {
-                    // Process the message
-                    string eventPayload = Encoding.UTF8.GetString(message.Body.ToArray());
-
                     var payload = new
                     {
                         job_id = _config.DatabricksWorkflowJobId_Ingest,
                         job_parameters = new
                         {
+                            entity = eventEntity,
                             payload = CompressAndBase64Encode(eventPayload)
                         }
                     };
@@ -51,10 +58,15 @@ namespace ServiceBus.Processor.Function
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config.DatabricksAccessToken);
 
                     HttpResponseMessage response = await httpClient.PostAsync($"https://{_config.DatabricksInstance}/api/2.1/jobs/run-now", content);
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    logDetail = $"{logDetail}, IngestionResponse: {responseContent}";
+                    log.LogInformation(logDetail);
                 }
                 catch (Exception ex)
                 {
-
+                    string excpetionDetails = $"{logDetail} | ExceptionMessage: {ex.Message} | InnerException: {ex.InnerException} | StackTrace: {ex.StackTrace}";
+                    log.LogError(excpetionDetails);
+                    throw;
                 }
             }
         }
