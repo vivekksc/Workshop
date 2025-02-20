@@ -33,16 +33,20 @@ namespace ServiceBus.Processor.Function
                     .ConfigureAwait(false);
             foreach (var message in messages)
             {
+                // Process the message
+                string eventPayload = Encoding.UTF8.GetString(message.Body.ToArray());
+                string eventEntity = message.Subject;
+                string eventId = message.SessionId;
+                string logDetail = $"Entity: {eventEntity}, EntityId: {eventId}";
+
                 try
                 {
-                    // Process the message
-                    string eventPayload = Encoding.UTF8.GetString(message.Body.ToArray());
-
                     var payload = new
                     {
                         job_id = _config.DatabricksWorkflowJobId_Ingest,
                         job_parameters = new
                         {
+                            entity = eventEntity,
                             payload = CompressAndBase64Encode(eventPayload)
                         }
                     };
@@ -54,10 +58,14 @@ namespace ServiceBus.Processor.Function
                     httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config.DatabricksAccessToken);
 
                     HttpResponseMessage response = await httpClient.PostAsync($"https://{_config.DatabricksInstance}/api/2.1/jobs/run-now", content);
+                    string responseContent = await response.Content.ReadAsStringAsync();
+                    logDetail = $"{logDetail}, IngestionResponse: {responseContent}";
+                    log.LogInformation(logDetail);
                 }
                 catch (Exception ex)
                 {
-                    log.LogError($"ExceptionMessage: {ex.Message} | InnerException: {ex.InnerException} | StackTrace: {ex.StackTrace}");
+                    string excpetionDetails = $"{logDetail} | ExceptionMessage: {ex.Message} | InnerException: {ex.InnerException} | StackTrace: {ex.StackTrace}";
+                    log.LogError(excpetionDetails);
                     throw;
                 }
             }
