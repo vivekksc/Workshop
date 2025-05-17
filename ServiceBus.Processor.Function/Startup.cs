@@ -27,6 +27,7 @@ namespace ServiceBus.Processor.Function
                 return new()
                 {
                     ServiceBusName = config["ServiceBus:Name"],
+                    ServiceBusTopic = config["ServiceBus:Topic"],
                     ServiceBusTopicSubscription = config["ServiceBus:TopicSubscription"],
                     DatabricksInstance = config["Databricks:Instance"],
                     DatabricksAccessToken = config["Databricks:AccessToken"],

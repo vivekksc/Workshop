@@ -11,6 +11,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Utilities.Utils;
 
@@ -34,14 +35,30 @@ namespace ServiceBus.Processor.Function
             // Accept sessions and process them concurrently
             for (int i = 0; i < _config.MaxConcurrentSessions; i++)
             {
-                ServiceBusSessionReceiver sessionReceiver = await _sbClient.AcceptNextSessionAsync(_config.ServiceBusTopic, _config.ServiceBusTopicSubscription);
+                CancellationTokenSource cancellationTokenSource = new(TimeSpan.FromMilliseconds(_config.MaxWaitTimeForMessagesInMilliSeconds));
+                ServiceBusSessionReceiverOptions sessionReceiverOptions = new() { PrefetchCount = _config.MaxMessagesToProcessPerRun };
+                ServiceBusSessionReceiver sessionReceiver;
+                try
+                {
+                    sessionReceiver = await _sbClient.AcceptNextSessionAsync(_config.ServiceBusTopic,
+                                                                            _config.ServiceBusTopicSubscription,
+                                                                            sessionReceiverOptions,
+                                                                            cancellationTokenSource.Token);
+                }
+                catch (TaskCanceledException) { break; } // No sessions available
+
                 if (sessionReceiver == null) break; // No more sessions available
 
                 sessionTasks.Add(ProcessSessionAsync(sessionReceiver, log)); // Start processing in parallel
             }
 
-            await Task.WhenAll(sessionTasks); // Wait for all sessions to complete
-            log.LogInformation("All sessions processed.");
+            if (sessionTasks.Count > 0)
+            {
+                await Task.WhenAll(sessionTasks); // Wait for all sessions to complete
+                log.LogInformation($"{sessionTasks.Count} sessions processed.");
+            }
+
+            log.LogInformation("No sessions found.");
         }
 
         private async Task ProcessSessionAsync(ServiceBusSessionReceiver sessionReceiver, ILogger log)
@@ -57,7 +74,7 @@ namespace ServiceBus.Processor.Function
 
                 foreach (var message in messages)
                 {
-                    Console.WriteLine($"Processing message {message.MessageId} in Session {sessionReceiver.SessionId}");
+                    log.LogInformation($"Processing message {message.MessageId} in Session {sessionReceiver.SessionId}");
 
                     await ProcessMessageAsync(message, log);
 
