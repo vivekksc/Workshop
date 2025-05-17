@@ -9,6 +9,7 @@ using System.IO.Compression;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Utilities.Utils;
 
@@ -61,6 +62,12 @@ namespace ServiceBus.Processor.Function
                     string responseContent = await response.Content.ReadAsStringAsync();
                     logDetail = $"{logDetail}, IngestionResponse: {responseContent}";
                     log.LogInformation(logDetail);
+
+                    JsonDocument responseJson = JsonDocument.Parse(responseContent);
+                    int dbxJobRunId = responseJson.RootElement.GetProperty("run_id").GetInt32();
+                    await WaitForJobCompletionAsync(log, dbxJobRunId);
+
+                    await _receiver.CompleteMessageAsync(message).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
@@ -92,5 +99,50 @@ namespace ServiceBus.Processor.Function
                 return base64String;
             }
         }
-    }
+
+        public async Task<bool> WaitForJobCompletionAsync(ILogger log, int jobRunId)
+        {
+            string url = $"https://{_config.DatabricksInstance}/api/2.1/jobs/runs/get?run_id={jobRunId}";
+            httpClient.DefaultRequestHeaders.Clear();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config.DatabricksAccessToken);
+
+            DateTime startTime = DateTime.Now;
+            TimeSpan maxWaitTime = TimeSpan.FromSeconds(_config.DatabricksWorkflowJobStatusPollingMaxWait_Seconds);
+
+            while (DateTime.Now - startTime < maxWaitTime)
+            {
+                try
+                {
+                    HttpResponseMessage response = await httpClient.GetAsync(url);
+                    response.EnsureSuccessStatusCode(); // Throw exception if not 2XX
+
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    log.LogInformation(responseBody);
+                    JsonDocument json = JsonDocument.Parse(responseBody);
+                    string jobStatus = json.RootElement.GetProperty("state")
+                                          .GetProperty("life_cycle_state")
+                                          .GetString();
+
+                    if (jobStatus == "TERMINATED" || jobStatus == "SUCCESS")
+                    {
+                        log.LogInformation($"Job {jobRunId} completed.");
+                        return true;
+                    }
+                    else
+                    {
+                        log.LogInformation($"Waiting for job {jobRunId} (status: {jobStatus}) to finish...");
+                        await Task.Delay(TimeSpan.FromSeconds(_config.DatabricksWorkflowJobStatusPollingDelay_Seconds));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error checking job status: {ex.Message}");
+                    await Task.Delay(_config.DatabricksWorkflowJobStatusPollingDelay_Seconds); // Wait before retrying
+                }
+            }
+
+            Console.WriteLine($"Timeout reached! Proceeding even though job {jobRunId} is still running.");
+            return true;  // Force return `true` after timeout
+        }
+}
 }

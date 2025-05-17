@@ -19,6 +19,8 @@
   "Databricks": {
     "Instance": "adb-3972221035262106.6.azuredatabricks.net",
     "AccessToken": "dapibb67ea0934b052c04c78f3fce9298bc5-3",
-    "WorkflowJobId_Ingest": "436900338996820"
+    "WorkflowJobId_Ingest": "436900338996820",
+    "WorkflowJobStatusPollingDelay_Seconds": 3,
+    "WorkflowJobStatusPollingMaxWait_Seconds": 60
   }
 }

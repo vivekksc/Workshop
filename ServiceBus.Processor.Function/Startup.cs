@@ -30,6 +30,8 @@ namespace ServiceBus.Processor.Function
                     DatabricksInstance = config["Databricks:Instance"],
                     DatabricksAccessToken = config["Databricks:AccessToken"],
                     DatabricksWorkflowJobId_Ingest = config["Databricks:WorkflowJobId_Ingest"],
+                    DatabricksWorkflowJobStatusPollingDelay_Seconds = Convert.ToInt16(config["Databricks:WorkflowJobStatusPollingDelay_Seconds"]),
+                    DatabricksWorkflowJobStatusPollingMaxWait_Seconds = Convert.ToInt16(config["Databricks:WorkflowJobStatusPollingMaxWait_Seconds"]),
                     MaxMessagesToProcessPerRun = Convert.ToInt16(config["MaxMessagesToProcessPerRun"]),
                     MaxWaitTimeForMessagesInMilliSeconds = Convert.ToInt16(config["MaxWaitTimeForMessagesInMilliSeconds"])
                 };
