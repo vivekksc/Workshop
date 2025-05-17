@@ -1,12 +1,20 @@
 {
-    "version": "2.0",
-    "logging": {
-        "applicationInsights": {
-            "samplingSettings": {
-                "isEnabled": true,
-                "excludedTypes": "Request"
-            },
-            "enableLiveMetricsFilters": true
-        }
+  "version": "2.0",
+  "logging": {
+    "applicationInsights": {
+      "samplingSettings": {
+        "isEnabled": true,
+        "excludedTypes": "Request"
+      },
+      "enableLiveMetricsFilters": true
+    },
+    "serviceBus": {
+      "sessionHandlerOptions": {
+        "autoComplete": true,
+        "messageWaitTimeout": "00:00:30",
+        "maxAutoRenewDuration": "00:55:00",
+        "maxConcurrentSessions": 20
+      }
     }
+  }
 }

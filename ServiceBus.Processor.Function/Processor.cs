@@ -25,7 +25,8 @@ namespace ServiceBus.Processor.Function
         private readonly ServiceBusReceiver _receiver = azClientFactory.CreateClient(config.ServiceBusTopicSubscription);
         private readonly HttpClient httpClient = httpClientFactory.CreateClient();
 
-        [FunctionName("Processor")]
+        [Disable]
+        [FunctionName("ScheduledProcessor")]
         public async Task RunAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer, ILogger log)
         {
             var messages = await _receiver.ReceiveMessagesAsync(
@@ -75,6 +76,51 @@ namespace ServiceBus.Processor.Function
                     log.LogError(excpetionDetails);
                     throw;
                 }
+            }
+        }
+
+        [FunctionName("SBTriggeredProcessor")]
+        public async Task RunAsync([ServiceBusTrigger("%ServiceBus__Topic%", "%ServiceBus__TopicSubscription%", Connection = "ServiceBus__ConnectionString", IsSessionsEnabled = true)] ServiceBusReceivedMessage message, ILogger log)
+        {
+            // Process the message
+            string eventPayload = Encoding.UTF8.GetString(message.Body.ToArray());
+            string eventEntity = message.Subject;
+            string eventId = message.SessionId;
+            string logDetail = $"Entity: {eventEntity}, EntityId: {eventId}";
+
+            try
+            {
+                var payload = new
+                {
+                    job_id = _config.DatabricksWorkflowJobId_Ingest,
+                    job_parameters = new
+                    {
+                        entity = eventEntity,
+                        payload = CompressAndBase64Encode(eventPayload)
+                    }
+                };
+
+                var jsonPayload = JsonConvert.SerializeObject(payload);
+                var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
+
+                httpClient.DefaultRequestHeaders.Clear();
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config.DatabricksAccessToken);
+
+                HttpResponseMessage response = await httpClient.PostAsync($"https://{_config.DatabricksInstance}/api/2.1/jobs/run-now", content);
+                string responseContent = await response.Content.ReadAsStringAsync();
+                logDetail = $"{logDetail}, IngestionResponse: {responseContent}";
+                log.LogInformation(logDetail);
+
+                JsonDocument responseJson = JsonDocument.Parse(responseContent);
+                int dbxJobRunId = responseJson.RootElement.GetProperty("run_id").GetInt32();
+            
+                await WaitForJobCompletionAsync(log, dbxJobRunId);
+            }
+            catch (Exception ex)
+            {
+                string excpetionDetails = $"{logDetail} | ExceptionMessage: {ex.Message} | InnerException: {ex.InnerException} | StackTrace: {ex.StackTrace}";
+                log.LogError(excpetionDetails);
+                throw;
             }
         }
 
@@ -144,5 +190,5 @@ namespace ServiceBus.Processor.Function
             Console.WriteLine($"Timeout reached! Proceeding even though job {jobRunId} is still running.");
             return true;  // Force return `true` after timeout
         }
-}
+    }
 }
