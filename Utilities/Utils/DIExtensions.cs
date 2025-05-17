@@ -84,12 +84,12 @@ namespace Utilities.Utils
                 if (useManagedIdentity)
                 {
                     // Adding using managed identity
-                    builder.AddServiceBusClientWithNamespace($"{serviceBusName}.servicebus.windows.net");
+                    builder.AddServiceBusClientWithNamespace($"{serviceBusName}.servicebus.windows.net").WithName(serviceBusName);
                 }
                 else
                 {
                     // Adding using connection string
-                    builder.AddServiceBusClient(serviceBusConnectionString);
+                    builder.AddServiceBusClient(serviceBusConnectionString).WithName(serviceBusName);
                 }
 
                 ServiceBusReceiverOptions receiverOptions = new()

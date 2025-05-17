@@ -26,12 +26,15 @@ namespace ServiceBus.Processor.Function
 
                 return new()
                 {
+                    ServiceBusName = config["ServiceBus:Name"],
                     ServiceBusTopicSubscription = config["ServiceBus:TopicSubscription"],
                     DatabricksInstance = config["Databricks:Instance"],
                     DatabricksAccessToken = config["Databricks:AccessToken"],
                     DatabricksWorkflowJobId_Ingest = config["Databricks:WorkflowJobId_Ingest"],
                     DatabricksWorkflowJobStatusPollingDelay_Seconds = Convert.ToInt16(config["Databricks:WorkflowJobStatusPollingDelay_Seconds"]),
                     DatabricksWorkflowJobStatusPollingMaxWait_Seconds = Convert.ToInt16(config["Databricks:WorkflowJobStatusPollingMaxWait_Seconds"]),
+                    MaxConcurrentSessions = Convert.ToInt16(config["MaxConcurrentSessions"]),
+                    MaxMessagesPerSession = Convert.ToInt16(config["MaxMessagesPerSession"]),
                     MaxMessagesToProcessPerRun = Convert.ToInt16(config["MaxMessagesToProcessPerRun"]),
                     MaxWaitTimeForMessagesInMilliSeconds = Convert.ToInt16(config["MaxWaitTimeForMessagesInMilliSeconds"])
                 };
