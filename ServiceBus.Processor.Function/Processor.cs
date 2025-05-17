@@ -25,6 +25,7 @@ namespace ServiceBus.Processor.Function
         private readonly ServiceBusReceiver _receiver = azClientFactory.CreateClient(config.ServiceBusTopicSubscription);
         private readonly HttpClient httpClient = httpClientFactory.CreateClient();
 
+        [Disable]
         [FunctionName("ScheduledProcessor")]
         public async Task RunAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer, ILogger log)
         {
