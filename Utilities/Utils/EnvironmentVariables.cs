@@ -5,6 +5,7 @@ namespace Utilities.Utils
         public string? ServiceBusName { get; set; }
         public string? ServiceBusTopic { get; set; }
         public string? ServiceBusTopicSubscription { get; set; }
+        public string? ServiceBusTopicSubscriptionBW { get; set; }
         public int MaxConcurrentSessions { get; set; }
         public int MaxMessagesPerSession { get; set; }
         public int MaxMessagesToProcessPerRun { get; set; }
@@ -13,6 +14,7 @@ namespace Utilities.Utils
         public string? DatabricksInstance { get; set; }
         public string? DatabricksAccessToken { get; set; }
         public string? DatabricksWorkflowJobId_Ingest { get; set; }
+        public string? DatabricksWorkflowJobId_PublishBW{ get; set; }
         public int DatabricksWorkflowJobStatusPollingDelay_Seconds { get; set; }
         public int DatabricksWorkflowJobStatusPollingMaxWait_Seconds { get; set; }
     }

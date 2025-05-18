@@ -2,6 +2,8 @@ using Microsoft.Azure.Functions.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using Utilities.Contracts;
+using Utilities.Services;
 using Utilities.Utils;
 
 [assembly: FunctionsStartup(typeof(ServiceBus.Processor.Function.Startup))]
@@ -29,9 +31,11 @@ namespace ServiceBus.Processor.Function
                     ServiceBusName = config["ServiceBus:Name"],
                     ServiceBusTopic = config["ServiceBus:Topic"],
                     ServiceBusTopicSubscription = config["ServiceBus:TopicSubscription"],
+                    ServiceBusTopicSubscriptionBW = config["ServiceBus:TopicSubscriptionBW"],
                     DatabricksInstance = config["Databricks:Instance"],
                     DatabricksAccessToken = config["Databricks:AccessToken"],
                     DatabricksWorkflowJobId_Ingest = config["Databricks:WorkflowJobId_Ingest"],
+                    DatabricksWorkflowJobId_PublishBW = config["Databricks:WorkflowJobId_PublishBW"],
                     DatabricksWorkflowJobStatusPollingDelay_Seconds = Convert.ToInt16(config["Databricks:WorkflowJobStatusPollingDelay_Seconds"]),
                     DatabricksWorkflowJobStatusPollingMaxWait_Seconds = Convert.ToInt16(config["Databricks:WorkflowJobStatusPollingMaxWait_Seconds"]),
                     MaxConcurrentSessions = Convert.ToInt16(config["MaxConcurrentSessions"]),
@@ -40,6 +44,9 @@ namespace ServiceBus.Processor.Function
                     MaxWaitTimeForMessagesInMilliSeconds = Convert.ToInt16(config["MaxWaitTimeForMessagesInMilliSeconds"])
                 };
             });
+
+            // Register Application services
+            builder.Services.AddScoped<IProcessorService, ProcessorService>();
 
             // Register ServiceBus instances
             _ = bool.TryParse(config["ServiceBus:UseManagedIdentity"], out bool useManagedIdentity);
