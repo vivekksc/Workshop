@@ -9,6 +9,6 @@ namespace Utilities.Contracts
 
         Task ProcessMessageAsync(ServiceBusReceivedMessage message, ILogger logger, string databricksJobId, string processorName);
 
-        Task<bool> WaitForJobCompletionAsync(ILogger logger, int jobRunId, string processorName);
+        Task<bool> WaitForJobCompletionAsync(ILogger logger, long jobRunId, string processorName);
     }
 }
