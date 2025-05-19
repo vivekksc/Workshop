@@ -48,6 +48,8 @@ namespace ServiceBus.Processor.Function
                     MaxConcurrentSessions = Convert.ToInt16(config["MaxConcurrentSessions"]),
                     MaxMessagesPerSession = Convert.ToInt16(config["MaxMessagesPerSession"]),
                     MaxMessagesToProcessPerRun = Convert.ToInt16(config["MaxMessagesToProcessPerRun"]),
+                    MaxConcurrentSessions_BW = Convert.ToInt16(config["MaxConcurrentSessions_BW"]),
+                    MaxMessagesToProcessPerRun_BW = Convert.ToInt16(config["MaxMessagesToProcessPerRun_BW"]),
                     MaxWaitTimeForMessagesInMilliSeconds = Convert.ToInt16(config["MaxWaitTimeForMessagesInMilliSeconds"])
                 };
             });

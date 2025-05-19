@@ -15,6 +15,8 @@ namespace Utilities.Utils
         public int MaxConcurrentSessions { get; set; }
         public int MaxMessagesPerSession { get; set; }
         public int MaxMessagesToProcessPerRun { get; set; }
+        public int MaxConcurrentSessions_BW { get; set; }
+        public int MaxMessagesToProcessPerRun_BW { get; set; }
         public int MaxWaitTimeForMessagesInMilliSeconds { get; set; }
 
         public string? DatabricksInstance { get; set; }

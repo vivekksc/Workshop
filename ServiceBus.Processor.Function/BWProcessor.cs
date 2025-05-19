@@ -30,10 +30,10 @@ namespace ServiceBus.Processor.Function
             List<Task> sessionTasks = [];
 
             // Accept sessions and process them concurrently
-            for (int i = 0; i < _config.MaxConcurrentSessions; i++)
+            for (int i = 0; i < _config.MaxConcurrentSessions_BW; i++)
             {
                 CancellationTokenSource cancellationTokenSource = new(TimeSpan.FromMilliseconds(_config.MaxWaitTimeForMessagesInMilliSeconds));
-                ServiceBusSessionReceiverOptions sessionReceiverOptions = new() { PrefetchCount = _config.MaxMessagesToProcessPerRun };
+                ServiceBusSessionReceiverOptions sessionReceiverOptions = new() { PrefetchCount = _config.MaxMessagesToProcessPerRun_BW };
                 ServiceBusSessionReceiver sessionReceiver;
                 try
                 {
