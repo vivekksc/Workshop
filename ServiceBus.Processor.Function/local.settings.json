@@ -14,9 +14,15 @@
   "ServiceBus": {
     "Namespace__fullyQualifiedNamespace": "wv-sb1.servicebus.windows.net",
     "Name": "wv-sb1",
-    "Topic": "sct-wv-events",
-    "TopicSubscription": "sbts-events-1",
-    "TopicSubscriptionBW": "sbts-events-bw",
+    "Topic_MDS": "sct-wv-events",
+    "Topic_BW": "sct-wv-events-bw",
+    "TopicSubscription_Update": "sbts-events-1",
+    "TopicSubscription_Comment": "sbts-events-2",
+    "TopicSubscription_Kudos": "sbts-events-3",
+    "TopicSubscription_Event": "sbts-events-4",
+    "TopicSubscription_Bookmark": "sbts-events-5",
+    "TopicSubscription_Article": "sbts-events-6",
+    "TopicSubscription_BW": "sbts-events-bw",
     "ConnectionString": "Endpoint=sb://wv-sb1.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SQR6QFS/ultipq7hY0WjA+A5wkwNGJtXd+ASbIh55QU=",
     "UseManagedIdentity": false
   },

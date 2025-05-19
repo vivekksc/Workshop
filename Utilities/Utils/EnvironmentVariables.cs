@@ -3,8 +3,14 @@ namespace Utilities.Utils
     public class EnvironmentVariables
     {
         public string? ServiceBusName { get; set; }
-        public string? ServiceBusTopic { get; set; }
-        public string? ServiceBusTopicSubscription { get; set; }
+        public string? ServiceBusTopic_MDS { get; set; }
+        public string? ServiceBusTopic_BW { get; set; }
+        public string? ServiceBusTopicSubscription_Update { get; set; }
+        public string? ServiceBusTopicSubscription_Comment { get; set; }
+        public string? ServiceBusTopicSubscription_Kudos { get; set; }
+        public string? ServiceBusTopicSubscription_Event { get; set; }
+        public string? ServiceBusTopicSubscription_Bookmark { get; set; }
+        public string? ServiceBusTopicSubscription_Article { get; set; }
         public string? ServiceBusTopicSubscriptionBW { get; set; }
         public int MaxConcurrentSessions { get; set; }
         public int MaxMessagesPerSession { get; set; }

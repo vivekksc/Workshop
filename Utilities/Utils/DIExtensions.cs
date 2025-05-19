@@ -7,6 +7,29 @@ namespace Utilities.Utils
 {
     public static class DIExtensions
     {
+        public static IServiceCollection AddServiceBusClient(this IServiceCollection services,
+                                                                  bool useManagedIdentity,
+                                                                  string serviceBusName,
+                                                                  string serviceBusConnectionString
+                                                                  )
+        {
+            services.AddAzureClients(builder =>
+            {
+                if (useManagedIdentity)
+                {
+                    // Adding using managed identity
+                    builder.AddServiceBusClientWithNamespace($"{serviceBusName}.servicebus.windows.net").WithName(serviceBusName);
+                }
+                else
+                {
+                    // Adding using connection string
+                    builder.AddServiceBusClient(serviceBusConnectionString).WithName(serviceBusName);
+                }
+            });
+
+            return services;
+        }
+
         public static IServiceCollection AddServiceBusClientAndSender(this IServiceCollection services,
                                                                   bool useManagedIdentity,
                                                                   string topicName,

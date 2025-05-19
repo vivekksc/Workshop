@@ -1,4 +1,5 @@
 using Microsoft.Azure.Functions.Extensions.DependencyInjection;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -29,9 +30,15 @@ namespace ServiceBus.Processor.Function
                 return new()
                 {
                     ServiceBusName = config["ServiceBus:Name"],
-                    ServiceBusTopic = config["ServiceBus:Topic"],
-                    ServiceBusTopicSubscription = config["ServiceBus:TopicSubscription"],
-                    ServiceBusTopicSubscriptionBW = config["ServiceBus:TopicSubscriptionBW"],
+                    ServiceBusTopic_MDS = config["ServiceBus:Topic_MDS"],
+                    ServiceBusTopic_BW = config["ServiceBus:Topic_BW"],
+                    ServiceBusTopicSubscription_Update = config["ServiceBus:TopicSubscription_Update"],
+                    ServiceBusTopicSubscription_Comment = config["ServiceBus:TopicSubscription_Comment"],
+                    ServiceBusTopicSubscription_Kudos = config["ServiceBus:TopicSubscription_Kudos"],
+                    ServiceBusTopicSubscription_Event = config["ServiceBus:TopicSubscription_Event"],
+                    ServiceBusTopicSubscription_Bookmark = config["ServiceBus:TopicSubscription_Bookmark"],
+                    ServiceBusTopicSubscription_Article = config["ServiceBus:TopicSubscription_Article"],
+                    ServiceBusTopicSubscriptionBW = config["ServiceBus:TopicSubscription_BW"],
                     DatabricksInstance = config["Databricks:Instance"],
                     DatabricksAccessToken = config["Databricks:AccessToken"],
                     DatabricksWorkflowJobId_Ingest = config["Databricks:WorkflowJobId_Ingest"],
@@ -50,11 +57,9 @@ namespace ServiceBus.Processor.Function
 
             // Register ServiceBus instances
             _ = bool.TryParse(config["ServiceBus:UseManagedIdentity"], out bool useManagedIdentity);
-            builder.Services.AddServiceBusClientAndReceiver(useManagedIdentity,
-                                                        config["ServiceBus:Topic"],
-                                                        config["ServiceBus:TopicSubscription"],
-                                                        config["ServiceBus:Name"],
-                                                        config["ServiceBus:ConnectionString"]);
+            builder.Services.AddServiceBusClient(useManagedIdentity,
+                                                config["ServiceBus:Name"],
+                                                config["ServiceBus:ConnectionString"]);
         }
     }
 }
