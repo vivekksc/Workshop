@@ -24,6 +24,7 @@ namespace Utilities.Utils
         public string? DatabricksWorkflowJobId_Ingest { get; set; }
         public string? DatabricksWorkflowJobId_PublishBW{ get; set; }
         public int DatabricksWorkflowJobStatusPollingDelay_Seconds { get; set; }
-        public int DatabricksWorkflowJobStatusPollingMaxWait_Seconds { get; set; }
+        public int DatabricksWorkflowJobStatusPollingMaxWait_Seconds_Ingest { get; set; }
+        public int DatabricksWorkflowJobStatusPollingMaxWait_Seconds_PublishBW { get; set; }
     }
 }

@@ -5,10 +5,21 @@ namespace Utilities.Contracts
 {
     public interface IProcessorService
     {
-        Task ProcessSessionAsync(ServiceBusSessionReceiver sessionReceiver, ILogger logger, string databricksJobId, string processorName);
+        Task ProcessSessionAsync(ServiceBusSessionReceiver sessionReceiver,
+                                 ILogger logger,
+                                 string databricksJobId,
+                                 int databricksJobStatusPollingMaxWaitSeconds,
+                                 string processorName);
 
-        Task ProcessMessageAsync(ServiceBusReceivedMessage message, ILogger logger, string databricksJobId, string processorName);
+        Task ProcessMessageAsync(ServiceBusReceivedMessage message,
+                                 ILogger logger,
+                                 string databricksJobId,
+                                 int databricksJobStatusPollingMaxWaitSeconds,
+                                 string processorName);
 
-        Task<bool> WaitForJobCompletionAsync(ILogger logger, long jobRunId, string processorName);
+        Task<bool> WaitForJobCompletionAsync(ILogger logger,
+                                             long jobRunId,
+                                             int jobStatusPollingMaxWaitSeconds,
+                                             string processorName);
     }
 }

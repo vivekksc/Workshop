@@ -116,6 +116,7 @@ namespace ServiceBus.Processor.Function
                     sessionTasks.Add(_processorService.ProcessSessionAsync(sessionReceiver,
                                                                            log,
                                                                            _config.DatabricksWorkflowJobId_Ingest,
+                                                                           _config.DatabricksWorkflowJobStatusPollingMaxWait_Seconds_Ingest,
                                                                            processName)); // Start processing in parallel
                 }
                 catch

@@ -10,7 +10,7 @@
     
     "MaxMessagesToProcessPerRun": 30,
     "MaxMessagesPerSession": 1,
-    "MaxConcurrentSessions": 30,
+    "MaxConcurrentSessions": 1,
 
     "MaxMessagesToProcessPerRun_BW": 30,
     "MaxConcurrentSessions_BW": 30
@@ -36,6 +36,7 @@
     "WorkflowJobId_Ingest": "345847271167317",
     "WorkflowJobId_PublishBW": "553423181493050",
     "WorkflowJobStatusPollingDelay_Seconds": 3,
-    "WorkflowJobStatusPollingMaxWait_Seconds": 60
+    "WorkflowJobStatusPollingMaxWait_Seconds_Ingest": 60,
+    "WorkflowJobStatusPollingMaxWait_Seconds_PublishBW": 60
   }
 }

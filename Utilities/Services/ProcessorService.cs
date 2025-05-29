@@ -21,6 +21,7 @@ namespace Utilities.Services
         public async Task ProcessSessionAsync(ServiceBusSessionReceiver sessionReceiver,
                                               ILogger logger,
                                               string databricksJobId,
+                                              int databricksJobStatusPollingMaxWaitSeconds,
                                               string processorName)
         {
             logger.LogInformation($"{processorName} - Processing session: {sessionReceiver.SessionId}");
@@ -38,7 +39,7 @@ namespace Utilities.Services
 
                     try
                     {
-                        await ProcessMessageAsync(message, logger, databricksJobId, processorName);
+                        await ProcessMessageAsync(message, logger, databricksJobId, databricksJobStatusPollingMaxWaitSeconds, processorName);
                         await sessionReceiver.CompleteMessageAsync(message); // Ensure ordered completion
                     }
                     catch
@@ -54,6 +55,7 @@ namespace Utilities.Services
         public async Task ProcessMessageAsync(ServiceBusReceivedMessage message,
                                               ILogger logger,
                                               string databricksJobId,
+                                              int databricksJobStatusPollingMaxWaitSeconds,
                                               string processorName)
         {
             string eventPayload = Encoding.UTF8.GetString(message.Body.ToArray());
@@ -88,9 +90,9 @@ namespace Utilities.Services
                 JsonDocument responseJson = JsonDocument.Parse(responseContent);
                 var isRunIdFound = responseJson.RootElement.GetProperty("run_id").TryGetInt64(out long dbxJobRunId);
                 if (isRunIdFound)
-                    await WaitForJobCompletionAsync(logger, dbxJobRunId, processorName);
+                    await WaitForJobCompletionAsync(logger, dbxJobRunId, databricksJobStatusPollingMaxWaitSeconds, processorName);
                 else
-                    await Task.Delay(TimeSpan.FromSeconds(_config.DatabricksWorkflowJobStatusPollingMaxWait_Seconds));
+                    await Task.Delay(TimeSpan.FromSeconds(databricksJobStatusPollingMaxWaitSeconds));
             }
             catch (Exception ex)
             {
@@ -100,14 +102,17 @@ namespace Utilities.Services
             }
         }
 
-        public async Task<bool> WaitForJobCompletionAsync(ILogger logger, long jobRunId, string processorName)
+        public async Task<bool> WaitForJobCompletionAsync(ILogger logger,
+                                                          long jobRunId,
+                                                          int jobStatusPollingMaxWaitSeconds,
+                                                          string processorName)
         {
             string url = $"https://{_config.DatabricksInstance}/api/2.1/jobs/runs/get?run_id={jobRunId}";
             httpClient.DefaultRequestHeaders.Clear();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config.DatabricksAccessToken);
 
             DateTime startTime = DateTime.Now;
-            TimeSpan maxWaitTime = TimeSpan.FromSeconds(_config.DatabricksWorkflowJobStatusPollingMaxWait_Seconds);
+            TimeSpan maxWaitTime = TimeSpan.FromSeconds(jobStatusPollingMaxWaitSeconds);
 
             while (DateTime.Now - startTime < maxWaitTime)
             {
@@ -123,7 +128,12 @@ namespace Utilities.Services
                                           .GetProperty("life_cycle_state")
                                           .GetString();
 
-                    if (jobStatus == "TERMINATED" || jobStatus == "SUCCESS")
+
+                    if (jobStatus == "TERMINATED" || jobStatus == "INTERNAL_ERROR")
+                    {
+                        throw new Exception($"{processorName} - Job {jobRunId} {jobStatus}. Details - {responseBody}");
+                    }
+                    else if (jobStatus == "SUCCESS")
                     {
                         logger.LogInformation($"{processorName} - Job {jobRunId} completed.");
                         return true;
@@ -136,8 +146,9 @@ namespace Utilities.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"{processorName} - Error checking job status: {ex.Message}");
-                    await Task.Delay(TimeSpan.FromSeconds(_config.DatabricksWorkflowJobStatusPollingDelay_Seconds)); // Wait before retrying
+                    throw;
+                    //logger.LogError($"{processorName} - Error checking job status: {ex.Message}");
+                    //await Task.Delay(TimeSpan.FromSeconds(_config.DatabricksWorkflowJobStatusPollingDelay_Seconds)); // Wait before retrying
                 }
             }
 
