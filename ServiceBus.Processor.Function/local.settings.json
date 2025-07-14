@@ -7,13 +7,19 @@
     "ProcessorRunScheduleExpression": "*/5 * * * * *",
     "BWProcessorRunScheduleExpression": "*/5 * * * * *",
     "MaxWaitTimeForMessagesInMilliSeconds": 1000,
-    
+
     "MaxMessagesToProcessPerRun": 30,
     "MaxMessagesPerSession": 1,
     "MaxConcurrentSessions": 1,
 
     "MaxMessagesToProcessPerRun_BW": 30,
     "MaxConcurrentSessions_BW": 30
+  },
+  "StorageAccount": {
+    "Name": "StorageAccountName",
+    "Container_Ingestion": "ingestion",
+    "ConnectionString": "<ConnectionString>",
+    "UseManagedIdentity": false
   },
   "ServiceBus": {
     "Namespace__fullyQualifiedNamespace": "wv-sb1.servicebus.windows.net",
@@ -27,14 +33,14 @@
     "TopicSubscription_Bookmark": "sbts-events-5",
     "TopicSubscription_Article": "sbts-events-6",
     "TopicSubscription_BW": "sbts-events-bw",
-    "ConnectionString": "Endpoint=sb://wv-sb1.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SQR6QFS/ultipq7hY0WjA+A5wkwNGJtXd+ASbIh55QU=",
+    "ConnectionString": "Endpoint=sb://wv-sb1.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=69/zP/XFLAr0Z71ZUdM5+PT4jcNAmyrPE+ASbMHYIgg=",
     "UseManagedIdentity": false
   },
   "Databricks": {
     "Instance": "adb-3972221035262106.6.azuredatabricks.net",
     "AccessToken": "dapi9a858a6852501d043de0b2ac17d75f63-3",
     "WorkflowJobId_Ingest": "345847271167317",
-    "WorkflowJobId_PublishBW": "553423181493050",
+    "WorkflowJobId_PublishBW": "345847271167317",
     "WorkflowJobStatusPollingDelay_Seconds": 3,
     "WorkflowJobStatusPollingMaxWait_Seconds_Ingest": 60,
     "WorkflowJobStatusPollingMaxWait_Seconds_PublishBW": 60

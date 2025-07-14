@@ -2,6 +2,10 @@ namespace Utilities.Utils
 {
     public class EnvironmentVariables
     {
+        public string? StorageAccountName { get; set; }
+        public string? StorageAccountContainer_Ingestion { get; set; }
+        public bool StorageAccount_UseManagedIdentity { get; set; }
+        public string? StorageAccount_ConnectionString { get; set; }
         public string? ServiceBusName { get; set; }
         public string? ServiceBusTopic_MDS { get; set; }
         public string? ServiceBusTopic_BW { get; set; }

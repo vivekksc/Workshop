@@ -29,6 +29,10 @@ namespace ServiceBus.Processor.Function
 
                 return new()
                 {
+                    StorageAccountName = config["StorageAccount:Name"],
+                    StorageAccount_UseManagedIdentity = Convert.ToBoolean(config["StorageAccount:UseManagedIdentity"]),
+                    StorageAccount_ConnectionString = config["StorageAccount:ConnectionString"],
+                    StorageAccountContainer_Ingestion = config["StorageAccount:Container_Ingestion"],
                     ServiceBusName = config["ServiceBus:Name"],
                     ServiceBusTopic_MDS = config["ServiceBus:Topic_MDS"],
                     ServiceBusTopic_BW = config["ServiceBus:Topic_BW"],

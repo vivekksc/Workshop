@@ -1,4 +1,7 @@
-﻿using Azure.Messaging.ServiceBus;
+﻿using Azure.Identity;
+using Azure.Messaging.ServiceBus;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Specialized;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System.IO.Compression;
@@ -58,20 +61,24 @@ namespace Utilities.Services
                                               int databricksJobStatusPollingMaxWaitSeconds,
                                               string processorName)
         {
-            string eventPayload = Encoding.UTF8.GetString(message.Body.ToArray());
+            using MemoryStream eventPayloadStream = new(message.Body.ToArray());
             string eventEntity = message.Subject;
             string eventId = message.SessionId;
             string logDetail = $"Entity: {eventEntity}, EntityId: {eventId}";
 
             try
             {
+                string blobName = $"{eventId}_{message.MessageId}.json";
+                var uploadResponse = await UploadBlobAsync(eventPayloadStream, blobName);
+                logger.LogInformation($"{processorName} - {logDetail}, PayloadBlobUploadStatus: {uploadResponse.ReasonPhrase}");
+
                 var payload = new
                 {
                     job_id = databricksJobId,
                     job_parameters = new
                     {
                         entity = eventEntity,
-                        payload = CompressAndBase64Encode(eventPayload)
+                        payloadFileAbsolutePath = uploadResponse.BlobAbsolutePath
                     }
                 };
 
@@ -93,6 +100,9 @@ namespace Utilities.Services
                     await WaitForJobCompletionAsync(logger, dbxJobRunId, databricksJobStatusPollingMaxWaitSeconds, processorName);
                 else
                     await Task.Delay(TimeSpan.FromSeconds(databricksJobStatusPollingMaxWaitSeconds));
+
+                //var deleteResponse = await DeleteBlobAsync(blobName);
+                //logger.LogInformation($"{processorName} - {logDetail}, PayloadBlobDeleteStatus: {deleteResponse.ReasonPhrase}");
             }
             catch (Exception ex)
             {
@@ -156,6 +166,89 @@ namespace Utilities.Services
             return true;  // Force return `true` after timeout
         }
 
+
+        private async Task<BlobUploadResponse> UploadBlobAsync(MemoryStream blobContent, string blobName)
+        {
+            var blobEndpoint = new Uri($"https://{_config.StorageAccountName}.blob.core.windows.net/{_config.StorageAccountContainer_Ingestion}");
+            BlobContainerClient containerClient;
+
+            if (_config.StorageAccount_UseManagedIdentity)
+            {
+                var credential = new DefaultAzureCredential();
+                containerClient = new BlobContainerClient(blobEndpoint, credential);
+            }
+            else
+            {
+                containerClient = new BlobContainerClient(_config.StorageAccount_ConnectionString, _config.StorageAccountContainer_Ingestion);
+            }
+
+            await containerClient.CreateIfNotExistsAsync();
+            var blockBlobClient = containerClient.GetBlockBlobClient(blobName);
+
+            var result = await blockBlobClient.UploadAsync(blobContent);
+            var response = result.GetRawResponse();
+
+            string uploadResponse = default;
+            var responseStream = response?.ContentStream;
+            if (responseStream != null)
+            {
+                responseStream.Seek(0, SeekOrigin.Begin);
+                using StreamReader reader = new(responseStream);
+                uploadResponse = reader.ReadToEndAsync().Result;
+            }
+
+            return new BlobUploadResponse
+            {
+                IsSuccess = !response.IsError,
+                Status = response.Status,
+                ReasonPhrase = response.ReasonPhrase,
+                Content = uploadResponse,
+                BlobURI = blockBlobClient.Uri.AbsoluteUri,
+                BlobAbsolutePath = blockBlobClient.Uri.AbsolutePath
+            };
+        }
+
+        private async Task<BlobUploadResponse> DeleteBlobAsync(string blobName)
+        {
+            var blobEndpoint = new Uri($"https://{_config.StorageAccountName}.blob.core.windows.net/{_config.StorageAccountContainer_Ingestion}");
+            BlobContainerClient containerClient;
+
+            if (_config.StorageAccount_UseManagedIdentity)
+            {
+                var credential = new DefaultAzureCredential();
+                containerClient = new BlobContainerClient(blobEndpoint, credential);
+            }
+            else
+            {
+                containerClient = new BlobContainerClient(_config.StorageAccount_ConnectionString, _config.StorageAccountContainer_Ingestion);
+            }
+
+            await containerClient.CreateIfNotExistsAsync();
+            var blockBlobClient = containerClient.GetBlockBlobClient(blobName);
+
+            var result = await blockBlobClient.DeleteIfExistsAsync();
+            var response = result.GetRawResponse();
+
+            string deleteResponse = default;
+            var responseStream = response?.ContentStream;
+            if (responseStream != null)
+            {
+                responseStream.Seek(0, SeekOrigin.Begin);
+                using StreamReader reader = new(responseStream);
+                deleteResponse = reader.ReadToEndAsync().Result;
+            }
+
+            return new BlobUploadResponse
+            {
+                IsSuccess = !response.IsError,
+                Status = response.Status,
+                ReasonPhrase = response.ReasonPhrase,
+                Content = deleteResponse,
+                BlobURI = blockBlobClient.Uri.AbsoluteUri,
+                BlobAbsolutePath = blockBlobClient.Uri.AbsolutePath
+            };
+        }
+
         private static string CompressAndBase64Encode(string jsonString)
         {
             // Convert the JSON string to bytes
@@ -177,5 +270,16 @@ namespace Utilities.Services
                 return base64String;
             }
         }
+    }
+
+    public sealed class BlobUploadResponse()
+    {
+        public bool IsSuccess { get; set; }
+        public int Status { get; set; }
+        public string ReasonPhrase { get; set; }
+        public string Content { get; set; }
+        public string BlobURI { get; set; }
+        public string BlobAbsolutePath { get; set; }
+
     }
 }
