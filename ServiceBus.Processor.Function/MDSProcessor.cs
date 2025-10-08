@@ -24,6 +24,7 @@ namespace ServiceBus.Processor.Function
         //private readonly HttpClient httpClient = httpClientFactory.CreateClient();
         private readonly IProcessorService _processorService = processorService;
 
+        [Disable]
         [FunctionName("MDSProcessor-Update")]
         public async Task ProcessUpdatesAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer,
                                    ExecutionContext funcContext,
@@ -35,6 +36,7 @@ namespace ServiceBus.Processor.Function
                                   funcContext.FunctionName);
         }
 
+        [Disable]
         [FunctionName("MDSProcessor-Comment")]
         public async Task ProcessCommentsAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer,
                                    ExecutionContext funcContext,
@@ -46,6 +48,7 @@ namespace ServiceBus.Processor.Function
                                   funcContext.FunctionName);
         }
 
+        [Disable]
         [FunctionName("MDSProcessor-Kudos")]
         public async Task ProcessKudosAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer,
                                    ExecutionContext funcContext,
@@ -57,6 +60,7 @@ namespace ServiceBus.Processor.Function
                                   funcContext.FunctionName);
         }
 
+        [Disable]
         [FunctionName("MDSProcessor-Event")]
         public async Task ProcessEventAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer,
                                    ExecutionContext funcContext,
@@ -68,6 +72,7 @@ namespace ServiceBus.Processor.Function
                                   funcContext.FunctionName);
         }
 
+        [Disable]
         [FunctionName("MDSProcessor-Bookmark")]
         public async Task ProcessBookmarkAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer,
                                    ExecutionContext funcContext,
@@ -79,6 +84,7 @@ namespace ServiceBus.Processor.Function
                                   funcContext.FunctionName);
         }
 
+        [Disable]
         [FunctionName("MDSProcessor-Article")]
         public async Task ProcessArticleAsync([TimerTrigger("%ProcessorRunScheduleExpression%")] TimerInfo myTimer,
                                    ExecutionContext funcContext,

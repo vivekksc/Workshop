@@ -68,7 +68,7 @@ namespace Utilities.Services
 
             try
             {
-                string blobName = $"{eventId}_{message.MessageId}.json";
+                string blobName = $"{eventId}_{message.MessageId}_{processorName}.json";
                 var uploadResponse = await UploadBlobAsync(eventPayloadStream, blobName);
                 logger.LogInformation($"{processorName} - {logDetail}, PayloadBlobUploadStatus: {uploadResponse.ReasonPhrase}");
 

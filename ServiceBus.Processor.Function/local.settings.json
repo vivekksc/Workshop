@@ -18,7 +18,7 @@
   "StorageAccount": {
     "Name": "StorageAccountName",
     "Container_Ingestion": "ingestion",
-    "ConnectionString": "<ConnectionString>",
+    "ConnectionString": "DefaultEndpointsProtocol=https;AccountName=wvfuncapp;AccountKey=3G8ov9ycW7YRcswE8Q5kaIV6GAx3D2gxznBAf93YD1bk8YeCahYp4b0cjrqknsKQXycwf3InaetN+AStqPO6oQ==;EndpointSuffix=core.windows.net",
     "UseManagedIdentity": false
   },
   "ServiceBus": {

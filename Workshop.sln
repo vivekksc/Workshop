@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBus.Processor.Functi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "Utilities\Utilities.csproj", "{AA468254-7F0C-469F-A7A3-E4D5666EC08D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureAI.Interface.Function", "AzureAI.Interface.Function\AzureAI.Interface.Function.csproj", "{6587E880-DA86-4C0F-BFB9-ECD35064A906}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{AA468254-7F0C-469F-A7A3-E4D5666EC08D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AA468254-7F0C-469F-A7A3-E4D5666EC08D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AA468254-7F0C-469F-A7A3-E4D5666EC08D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6587E880-DA86-4C0F-BFB9-ECD35064A906}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6587E880-DA86-4C0F-BFB9-ECD35064A906}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6587E880-DA86-4C0F-BFB9-ECD35064A906}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6587E880-DA86-4C0F-BFB9-ECD35064A906}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
